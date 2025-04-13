@@ -1,0 +1,239 @@
+{{ define "content" }}
+<div class="flex items-center justify-between mb-6">
+    <h3 class="text-3xl font-bold text-gray-700">Yeni Ürün Ekle</h3>
+    <a href="/products" class="btn btn-outline">
+        <i class="fas fa-arrow-left mr-2"></i> Ürün Listesine Dön
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form id="productForm" action="/api/products" method="POST" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Ürün Kodu -->
+                <div class="form-group">
+                    <label for="productCode" class="form-label">Ürün Kodu <span class="text-danger">*</span></label>
+                    <input type="text" id="productCode" name="code" class="form-control" required placeholder="Örn: PRD-001">
+                    <small class="text-gray-500">Ürün kodu benzersiz olmalıdır.</small>
+                </div>
+                
+                <!-- Ürün Adı -->
+                <div class="form-group">
+                    <label for="productName" class="form-label">Ürün Adı <span class="text-danger">*</span></label>
+                    <input type="text" id="productName" name="name" class="form-control" required>
+                </div>
+                
+                <!-- Kategori -->
+                <div class="form-group">
+                    <label for="category" class="form-label">Kategori <span class="text-danger">*</span></label>
+                    <select id="category" name="category" class="form-control" required>
+                        <option value="">Kategori Seçin</option>
+                        <option value="meyve">Meyve</option>
+                        <option value="sebze">Sebze</option>
+                        <option value="süt">Süt Ürünleri</option>
+                        <option value="baklagil">Baklagiller</option>
+                        <option value="unlu">Unlu Mamüller</option>
+                        <option value="diğer">Diğer</option>
+                    </select>
+                </div>
+                
+                <!-- Birim Türü -->
+                <div class="form-group">
+                    <label for="unit" class="form-label">Birim <span class="text-danger">*</span></label>
+                    <select id="unit" name="unit" class="form-control" required>
+                        <option value="">Birim Seçin</option>
+                        <option value="kg">Kilogram (kg)</option>
+                        <option value="g">Gram (g)</option>
+                        <option value="l">Litre (l)</option>
+                        <option value="ml">Mililitre (ml)</option>
+                        <option value="adet">Adet</option>
+                        <option value="paket">Paket</option>
+                        <option value="kutu">Kutu</option>
+                    </select>
+                </div>
+                
+                <!-- Stok Miktarı -->
+                <div class="form-group">
+                    <label for="stock" class="form-label">Stok Miktarı <span class="text-danger">*</span></label>
+                    <input type="number" id="stock" name="stock" class="form-control" required min="0" step="0.01">
+                </div>
+                
+                <!-- Kritik Stok Seviyesi -->
+                <div class="form-group">
+                    <label for="criticalStock" class="form-label">Kritik Stok Seviyesi</label>
+                    <input type="number" id="criticalStock" name="criticalStock" class="form-control" min="0" step="0.01">
+                    <small class="text-gray-500">Bu değerin altına düşünce uyarı verilir.</small>
+                </div>
+                
+                <!-- Alış Fiyatı -->
+                <div class="form-group">
+                    <label for="purchasePrice" class="form-label">Alış Fiyatı (₺) <span class="text-danger">*</span></label>
+                    <input type="number" id="purchasePrice" name="purchasePrice" class="form-control" required min="0" step="0.01">
+                </div>
+                
+                <!-- Satış Fiyatı -->
+                <div class="form-group">
+                    <label for="salePrice" class="form-label">Satış Fiyatı (₺) <span class="text-danger">*</span></label>
+                    <input type="number" id="salePrice" name="salePrice" class="form-control" required min="0" step="0.01">
+                </div>
+            </div>
+            
+            <!-- Açıklama -->
+            <div class="form-group">
+                <label for="description" class="form-label">Açıklama</label>
+                <textarea id="description" name="description" class="form-control" rows="4"></textarea>
+            </div>
+            
+            <!-- Durum -->
+            <div class="form-group">
+                <label class="form-label">Durum</label>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center">
+                        <input type="radio" id="statusActive" name="status" value="active" class="mr-2" checked>
+                        <label for="statusActive">Aktif</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="radio" id="statusInactive" name="status" value="inactive" class="mr-2">
+                        <label for="statusInactive">Pasif</label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Barkod Alanı -->
+            <div class="form-group">
+                <label class="form-label">Barkod</label>
+                <div class="barcode-container">
+                    <svg id="barcodeElement"></svg>
+                </div>
+                <small class="text-gray-500">Barkod otomatik olarak ürün kodu kullanılarak oluşturulur.</small>
+            </div>
+            
+            <!-- Butonlar -->
+            <div class="flex justify-end space-x-2">
+                <button type="button" id="resetBtn" class="btn btn-outline">
+                    <i class="fas fa-undo mr-2"></i> Sıfırla
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save mr-2"></i> Kaydet
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{{ end }}
+
+{{ define "scripts" }}
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('productForm');
+        const productCodeInput = document.getElementById('productCode');
+        const barcodeElement = document.getElementById('barcodeElement');
+        const resetBtn = document.getElementById('resetBtn');
+        
+        // Alış ve satış fiyatı için hesaplama
+        const purchasePriceInput = document.getElementById('purchasePrice');
+        const salePriceInput = document.getElementById('salePrice');
+        
+        // Kar marjını hesapla
+        function updateProfitMargin() {
+            const purchasePrice = parseFloat(purchasePriceInput.value) || 0;
+            const salePrice = parseFloat(salePriceInput.value) || 0;
+            
+            if (purchasePrice > 0 && salePrice > 0) {
+                const profit = salePrice - purchasePrice;
+                const margin = (profit / purchasePrice) * 100;
+                
+                // Buraya kar marjını göstermek için bir element eklenebilir
+                console.log(`Kar Marjı: %${margin.toFixed(2)}`);
+            }
+        }
+        
+        purchasePriceInput.addEventListener('input', updateProfitMargin);
+        salePriceInput.addEventListener('input', updateProfitMargin);
+        
+        // Barkod oluştur
+        function generateBarcode() {
+            const code = productCodeInput.value.trim();
+            if (code) {
+                try {
+                    JsBarcode(barcodeElement, code, {
+                        format: "CODE128",
+                        lineColor: "#000",
+                        width: 2,
+                        height: 50,
+                        displayValue: true
+                    });
+                } catch (e) {
+                    console.error('Barkod oluşturulamadı:', e);
+                }
+            }
+        }
+        
+        // Ürün kodu değiştiğinde barkodu güncelle
+        productCodeInput.addEventListener('input', generateBarcode);
+        
+        // Form gönderimi
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!validateForm('productForm')) {
+                return false;
+            }
+            
+            // Form verilerini topla
+            const formData = new FormData(form);
+            const jsonData = {};
+            
+            formData.forEach((value, key) => {
+                // Sayısal değerleri dönüştür
+                if (['stock', 'criticalStock', 'purchasePrice', 'salePrice'].includes(key)) {
+                    jsonData[key] = parseFloat(value);
+                } else {
+                    jsonData[key] = value;
+                }
+            });
+            
+            // API'ye gönder
+            fetch('/api/products', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(jsonData)
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error('Ürün kaydedilemedi!');
+            })
+            .then(data => {
+                showToast('Ürün başarıyla kaydedildi', 'success');
+                // Başarılı kayıt sonrası yönlendirme
+                setTimeout(() => {
+                    window.location.href = '/products';
+                }, 1500);
+            })
+            .catch(error => {
+                console.error('Hata:', error);
+                showToast('Ürün kaydedilirken bir hata oluştu', 'error');
+            });
+        });
+        
+        // Form sıfırlama
+        resetBtn.addEventListener('click', function() {
+            form.reset();
+            // Barkod alanını temizle
+            while (barcodeElement.firstChild) {
+                barcodeElement.removeChild(barcodeElement.firstChild);
+            }
+        });
+        
+        // Sayfa yüklendiğinde barkod oluştur (eğer ürün kodu varsa)
+        if (productCodeInput.value.trim()) {
+            generateBarcode();
+        }
+    });
+</script>
+{{ end }} 

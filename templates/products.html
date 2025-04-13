@@ -1,0 +1,343 @@
+{{ define "content" }}
+<div class="flex items-center justify-between mb-6">
+    <h3 class="text-3xl font-bold text-gray-700">Ürünler</h3>
+    <a href="/products/new" class="btn btn-primary">
+        <i class="fas fa-plus mr-2"></i> Yeni Ürün Ekle
+    </a>
+</div>
+
+<!-- Filtre ve Arama -->
+<div class="card mb-6">
+    <div class="card-body">
+        <form action="/products" method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="form-group">
+                <label for="search" class="form-label">Ara</label>
+                <input type="text" id="search" name="search" class="form-control" placeholder="Ürün adı veya kodu...">
+            </div>
+            
+            <div class="form-group">
+                <label for="category" class="form-label">Kategori</label>
+                <select id="category" name="category" class="form-control">
+                    <option value="">Tüm Kategoriler</option>
+                    <option value="meyve">Meyve</option>
+                    <option value="sebze">Sebze</option>
+                    <option value="süt">Süt Ürünleri</option>
+                    <option value="baklagil">Baklagiller</option>
+                    <option value="unlu">Unlu Mamüller</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="stock" class="form-label">Stok Durumu</label>
+                <select id="stock" name="stock" class="form-control">
+                    <option value="">Tümü</option>
+                    <option value="available">Stokta Var</option>
+                    <option value="critical">Kritik Seviyede</option>
+                    <option value="out">Tükendi</option>
+                </select>
+            </div>
+            
+            <div class="form-group flex items-end">
+                <button type="submit" class="btn btn-primary mr-2">
+                    <i class="fas fa-search mr-2"></i> Ara
+                </button>
+                <a href="/products" class="btn btn-outline">
+                    <i class="fas fa-sync-alt mr-2"></i> Sıfırla
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Ürün Tablosu -->
+<div class="card">
+    <div class="card-header flex items-center justify-between">
+        <h3 class="text-lg font-semibold">Ürün Listesi</h3>
+        <div class="flex items-center">
+            <button id="exportCsv" class="btn btn-outline btn-sm mr-2">
+                <i class="fas fa-file-csv mr-1"></i> CSV
+            </button>
+            <button id="printList" class="btn btn-outline btn-sm">
+                <i class="fas fa-print mr-1"></i> Yazdır
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="overflow-x-auto">
+            <table class="table table-striped" id="productsTable">
+                <thead>
+                    <tr>
+                        <th>Ürün Kodu</th>
+                        <th>Ürün Adı</th>
+                        <th>Kategori</th>
+                        <th>Birim</th>
+                        <th>Stok Miktarı</th>
+                        <th>Alış Fiyatı</th>
+                        <th>Satış Fiyatı</th>
+                        <th>Durum</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>PRD-001</td>
+                        <td>Elma</td>
+                        <td>Meyve</td>
+                        <td>kg</td>
+                        <td>25</td>
+                        <td>12.50 ₺</td>
+                        <td>18.00 ₺</td>
+                        <td><span class="badge badge-success">Aktif</span></td>
+                        <td>
+                            <div class="flex space-x-2">
+                                <a href="/products/PRD-001" class="text-info" title="Görüntüle">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="/products/PRD-001/edit" class="text-primary" title="Düzenle">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="text-danger delete-product" data-id="PRD-001" title="Sil">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>PRD-002</td>
+                        <td>Domates</td>
+                        <td>Sebze</td>
+                        <td>kg</td>
+                        <td>18</td>
+                        <td>8.75 ₺</td>
+                        <td>15.00 ₺</td>
+                        <td><span class="badge badge-success">Aktif</span></td>
+                        <td>
+                            <div class="flex space-x-2">
+                                <a href="/products/PRD-002" class="text-info" title="Görüntüle">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="/products/PRD-002/edit" class="text-primary" title="Düzenle">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="text-danger delete-product" data-id="PRD-002" title="Sil">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>PRD-003</td>
+                        <td>Süt</td>
+                        <td>Süt Ürünleri</td>
+                        <td>litre</td>
+                        <td>42</td>
+                        <td>22.00 ₺</td>
+                        <td>28.50 ₺</td>
+                        <td><span class="badge badge-success">Aktif</span></td>
+                        <td>
+                            <div class="flex space-x-2">
+                                <a href="/products/PRD-003" class="text-info" title="Görüntüle">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="/products/PRD-003/edit" class="text-primary" title="Düzenle">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="text-danger delete-product" data-id="PRD-003" title="Sil">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>PRD-004</td>
+                        <td>Tam Buğday Ekmek</td>
+                        <td>Unlu Mamüller</td>
+                        <td>adet</td>
+                        <td>15</td>
+                        <td>5.00 ₺</td>
+                        <td>7.50 ₺</td>
+                        <td><span class="badge badge-success">Aktif</span></td>
+                        <td>
+                            <div class="flex space-x-2">
+                                <a href="/products/PRD-004" class="text-info" title="Görüntüle">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="/products/PRD-004/edit" class="text-primary" title="Düzenle">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="text-danger delete-product" data-id="PRD-004" title="Sil">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>PRD-005</td>
+                        <td>Kuru Fasulye</td>
+                        <td>Baklagiller</td>
+                        <td>kg</td>
+                        <td>38</td>
+                        <td>35.00 ₺</td>
+                        <td>42.50 ₺</td>
+                        <td><span class="badge badge-success">Aktif</span></td>
+                        <td>
+                            <div class="flex space-x-2">
+                                <a href="/products/PRD-005" class="text-info" title="Görüntüle">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="/products/PRD-005/edit" class="text-primary" title="Düzenle">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="text-danger delete-product" data-id="PRD-005" title="Sil">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Sayfalama -->
+        <div class="flex justify-between items-center mt-4">
+            <div class="text-sm text-gray-500">
+                Toplam <span class="font-semibold">5</span> ürün
+            </div>
+            <div class="flex space-x-1">
+                <button class="btn btn-outline btn-sm" disabled>
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="btn btn-primary btn-sm">1</button>
+                <button class="btn btn-outline btn-sm">2</button>
+                <button class="btn btn-outline btn-sm">3</button>
+                <button class="btn btn-outline btn-sm">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Silme Modal -->
+<div class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center hidden" id="deleteModal">
+    <div class="bg-white p-6 rounded-lg w-full max-w-md mx-auto mt-32">
+        <h3 class="text-xl font-semibold mb-4">Ürünü Sil</h3>
+        <p>Bu ürünü silmek istediğinize emin misiniz? Bu işlem geri alınamaz.</p>
+        <div class="flex justify-end mt-6">
+            <button id="cancelDelete" class="btn btn-outline mr-2">İptal</button>
+            <button id="confirmDelete" class="btn btn-danger">Sil</button>
+        </div>
+    </div>
+</div>
+{{ end }}
+
+{{ define "scripts" }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tablo sıralama
+        document.querySelectorAll('#productsTable thead th').forEach((th, idx) => {
+            th.addEventListener('click', () => sortTable('productsTable', idx));
+            th.style.cursor = 'pointer';
+        });
+        
+        // CSV Export
+        document.getElementById('exportCsv').addEventListener('click', function() {
+            // CSV dışa aktarma işlemi
+            const table = document.getElementById('productsTable');
+            let csv = [];
+            
+            // Başlıkları al
+            const headers = [];
+            table.querySelectorAll('thead th').forEach(th => {
+                headers.push(th.textContent.trim());
+            });
+            csv.push(headers.join(','));
+            
+            // Verileri al
+            table.querySelectorAll('tbody tr').forEach(tr => {
+                const row = [];
+                tr.querySelectorAll('td').forEach((td, idx) => {
+                    if (idx !== 8) { // İşlemler sütununu hariç tut
+                        let value = td.textContent.trim();
+                        // Virgülleri ve çift tırnakları işle
+                        if (value.includes(',') || value.includes('"')) {
+                            value = `"${value.replace(/"/g, '""')}"`;
+                        }
+                        row.push(value);
+                    }
+                });
+                csv.push(row.join(','));
+            });
+            
+            // CSV dosyasını indir
+            const csvContent = csv.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'urunler.csv');
+            link.click();
+        });
+        
+        // Yazdırma
+        document.getElementById('printList').addEventListener('click', function() {
+            window.print();
+        });
+        
+        // Silme işlemi
+        const deleteModal = document.getElementById('deleteModal');
+        let productIdToDelete = null;
+        
+        // Delete butonlarına tıklama
+        document.querySelectorAll('.delete-product').forEach(btn => {
+            btn.addEventListener('click', function() {
+                productIdToDelete = this.dataset.id;
+                deleteModal.classList.remove('hidden');
+                deleteModal.classList.add('flex');
+            });
+        });
+        
+        // İptal butonu
+        document.getElementById('cancelDelete').addEventListener('click', function() {
+            deleteModal.classList.add('hidden');
+            deleteModal.classList.remove('flex');
+            productIdToDelete = null;
+        });
+        
+        // Onay butonu
+        document.getElementById('confirmDelete').addEventListener('click', function() {
+            if (productIdToDelete) {
+                // Sunucuya silme isteği gönder
+                fetch(`/api/products/${productIdToDelete}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // Başarılı silme işlemi
+                        showToast('Ürün başarıyla silindi', 'success');
+                        // Sayfayı yenile veya tablodan satırı kaldır
+                        const row = document.querySelector(`button[data-id="${productIdToDelete}"]`).closest('tr');
+                        row.remove();
+                    } else {
+                        // Hata durumu
+                        showToast('Ürün silinirken bir hata oluştu', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Silme işlemi başarısız:', error);
+                    showToast('Ürün silinirken bir hata oluştu', 'error');
+                })
+                .finally(() => {
+                    // Modalı kapat
+                    deleteModal.classList.add('hidden');
+                    deleteModal.classList.remove('flex');
+                    productIdToDelete = null;
+                });
+            }
+        });
+    });
+</script>
+{{ end }} 

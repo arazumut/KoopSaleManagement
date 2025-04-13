@@ -100,6 +100,3 @@ http://localhost:8080/api
 - `PUT /api/products/:id`: Ürün bilgilerini güncelle
 - `DELETE /api/products/:id`: Ürünü sil
 
-## Lisans
-
-Bu proje MIT Lisansı ile lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın. 

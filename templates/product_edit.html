@@ -1,0 +1,280 @@
+{{ define "content" }}
+<div class="flex items-center justify-between mb-6">
+    <h3 class="text-3xl font-bold text-gray-700">Ürün Düzenle</h3>
+    <a href="/products" class="btn btn-outline">
+        <i class="fas fa-arrow-left mr-2"></i> Ürün Listesine Dön
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form id="productForm" action="/api/products/{{ .Product.ID }}" method="PUT" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Ürün Kodu -->
+                <div class="form-group">
+                    <label for="productCode" class="form-label">Ürün Kodu <span class="text-danger">*</span></label>
+                    <input type="text" id="productCode" name="code" class="form-control" required value="{{ .Product.Code }}" placeholder="Örn: PRD-001">
+                    <small class="text-gray-500">Ürün kodu benzersiz olmalıdır.</small>
+                </div>
+                
+                <!-- Ürün Adı -->
+                <div class="form-group">
+                    <label for="productName" class="form-label">Ürün Adı <span class="text-danger">*</span></label>
+                    <input type="text" id="productName" name="name" class="form-control" required value="{{ .Product.Name }}">
+                </div>
+                
+                <!-- Kategori -->
+                <div class="form-group">
+                    <label for="category" class="form-label">Kategori <span class="text-danger">*</span></label>
+                    <select id="category" name="category" class="form-control" required>
+                        <option value="">Kategori Seçin</option>
+                        <option value="meyve" {{ if eq .Product.Category "meyve" }}selected{{ end }}>Meyve</option>
+                        <option value="sebze" {{ if eq .Product.Category "sebze" }}selected{{ end }}>Sebze</option>
+                        <option value="süt" {{ if eq .Product.Category "süt" }}selected{{ end }}>Süt Ürünleri</option>
+                        <option value="baklagil" {{ if eq .Product.Category "baklagil" }}selected{{ end }}>Baklagiller</option>
+                        <option value="unlu" {{ if eq .Product.Category "unlu" }}selected{{ end }}>Unlu Mamüller</option>
+                        <option value="diğer" {{ if eq .Product.Category "diğer" }}selected{{ end }}>Diğer</option>
+                    </select>
+                </div>
+                
+                <!-- Birim Türü -->
+                <div class="form-group">
+                    <label for="unit" class="form-label">Birim <span class="text-danger">*</span></label>
+                    <select id="unit" name="unit" class="form-control" required>
+                        <option value="">Birim Seçin</option>
+                        <option value="kg" {{ if eq .Product.Unit "kg" }}selected{{ end }}>Kilogram (kg)</option>
+                        <option value="g" {{ if eq .Product.Unit "g" }}selected{{ end }}>Gram (g)</option>
+                        <option value="l" {{ if eq .Product.Unit "l" }}selected{{ end }}>Litre (l)</option>
+                        <option value="ml" {{ if eq .Product.Unit "ml" }}selected{{ end }}>Mililitre (ml)</option>
+                        <option value="adet" {{ if eq .Product.Unit "adet" }}selected{{ end }}>Adet</option>
+                        <option value="paket" {{ if eq .Product.Unit "paket" }}selected{{ end }}>Paket</option>
+                        <option value="kutu" {{ if eq .Product.Unit "kutu" }}selected{{ end }}>Kutu</option>
+                    </select>
+                </div>
+                
+                <!-- Stok Miktarı -->
+                <div class="form-group">
+                    <label for="stock" class="form-label">Stok Miktarı <span class="text-danger">*</span></label>
+                    <input type="number" id="stock" name="stock" class="form-control" required min="0" step="0.01" value="{{ .Product.Stock }}">
+                </div>
+                
+                <!-- Kritik Stok Seviyesi -->
+                <div class="form-group">
+                    <label for="criticalStock" class="form-label">Kritik Stok Seviyesi</label>
+                    <input type="number" id="criticalStock" name="criticalStock" class="form-control" min="0" step="0.01" value="{{ .Product.CriticalStock }}">
+                    <small class="text-gray-500">Bu değerin altına düşünce uyarı verilir.</small>
+                </div>
+                
+                <!-- Alış Fiyatı -->
+                <div class="form-group">
+                    <label for="purchasePrice" class="form-label">Alış Fiyatı (₺) <span class="text-danger">*</span></label>
+                    <input type="number" id="purchasePrice" name="purchasePrice" class="form-control" required min="0" step="0.01" value="{{ .Product.PurchasePrice }}">
+                </div>
+                
+                <!-- Satış Fiyatı -->
+                <div class="form-group">
+                    <label for="salePrice" class="form-label">Satış Fiyatı (₺) <span class="text-danger">*</span></label>
+                    <input type="number" id="salePrice" name="salePrice" class="form-control" required min="0" step="0.01" value="{{ .Product.SalePrice }}">
+                </div>
+                
+                <!-- Kar Marjı (Sadece gösterim için) -->
+                <div class="form-group">
+                    <label class="form-label">Kar Marjı</label>
+                    <div class="form-control bg-gray-100" id="profitMargin">
+                        {{ if and .Product.PurchasePrice .Product.SalePrice }}
+                            {{ $profit := subtract .Product.SalePrice .Product.PurchasePrice }}
+                            {{ $margin := multiply (divide $profit .Product.PurchasePrice) 100 }}
+                            %{{ $margin | printf "%.2f" }}
+                        {{ else }}
+                            %0.00
+                        {{ end }}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Açıklama -->
+            <div class="form-group">
+                <label for="description" class="form-label">Açıklama</label>
+                <textarea id="description" name="description" class="form-control" rows="4">{{ .Product.Description }}</textarea>
+            </div>
+            
+            <!-- Durum -->
+            <div class="form-group">
+                <label class="form-label">Durum</label>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center">
+                        <input type="radio" id="statusActive" name="status" value="active" class="mr-2" {{ if eq .Product.Status "active" }}checked{{ end }}>
+                        <label for="statusActive">Aktif</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="radio" id="statusInactive" name="status" value="inactive" class="mr-2" {{ if eq .Product.Status "inactive" }}checked{{ end }}>
+                        <label for="statusInactive">Pasif</label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Barkod Alanı -->
+            <div class="form-group">
+                <label class="form-label">Barkod</label>
+                <div class="barcode-container">
+                    <svg id="barcodeElement"></svg>
+                </div>
+                <small class="text-gray-500">Barkod otomatik olarak ürün kodu kullanılarak oluşturulur.</small>
+            </div>
+            
+            <!-- Butonlar -->
+            <div class="flex justify-end space-x-2">
+                <button type="button" id="resetBtn" class="btn btn-outline">
+                    <i class="fas fa-undo mr-2"></i> Değişiklikleri Geri Al
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save mr-2"></i> Güncelle
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{{ end }}
+
+{{ define "scripts" }}
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('productForm');
+        const productCodeInput = document.getElementById('productCode');
+        const barcodeElement = document.getElementById('barcodeElement');
+        const resetBtn = document.getElementById('resetBtn');
+        
+        // Form elementlerinin orijinal değerlerini sakla
+        const originalValues = {};
+        Array.from(form.elements).forEach(element => {
+            if (element.name) {
+                originalValues[element.name] = element.value;
+            }
+        });
+        
+        // Alış ve satış fiyatı için hesaplama
+        const purchasePriceInput = document.getElementById('purchasePrice');
+        const salePriceInput = document.getElementById('salePrice');
+        const profitMarginElement = document.getElementById('profitMargin');
+        
+        // Kar marjını hesapla
+        function updateProfitMargin() {
+            const purchasePrice = parseFloat(purchasePriceInput.value) || 0;
+            const salePrice = parseFloat(salePriceInput.value) || 0;
+            
+            if (purchasePrice > 0 && salePrice > 0) {
+                const profit = salePrice - purchasePrice;
+                const margin = (profit / purchasePrice) * 100;
+                
+                profitMarginElement.textContent = `%${margin.toFixed(2)}`;
+            } else {
+                profitMarginElement.textContent = '%0.00';
+            }
+        }
+        
+        purchasePriceInput.addEventListener('input', updateProfitMargin);
+        salePriceInput.addEventListener('input', updateProfitMargin);
+        
+        // Barkod oluştur
+        function generateBarcode() {
+            const code = productCodeInput.value.trim();
+            if (code) {
+                try {
+                    JsBarcode(barcodeElement, code, {
+                        format: "CODE128",
+                        lineColor: "#000",
+                        width: 2,
+                        height: 50,
+                        displayValue: true
+                    });
+                } catch (e) {
+                    console.error('Barkod oluşturulamadı:', e);
+                }
+            }
+        }
+        
+        // Ürün kodu değiştiğinde barkodu güncelle
+        productCodeInput.addEventListener('input', generateBarcode);
+        
+        // Form gönderimi
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!validateForm('productForm')) {
+                return false;
+            }
+            
+            // Form verilerini topla
+            const formData = new FormData(form);
+            const jsonData = {};
+            
+            formData.forEach((value, key) => {
+                // Sayısal değerleri dönüştür
+                if (['stock', 'criticalStock', 'purchasePrice', 'salePrice'].includes(key)) {
+                    jsonData[key] = parseFloat(value);
+                } else {
+                    jsonData[key] = value;
+                }
+            });
+            
+            // Ürün ID'sini al
+            const productId = "{{ .Product.ID }}";
+            
+            // API'ye gönder
+            fetch(`/api/products/${productId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(jsonData)
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error('Ürün güncellenemedi!');
+            })
+            .then(data => {
+                showToast('Ürün başarıyla güncellendi', 'success');
+                // Güncel verileri sakla
+                Array.from(form.elements).forEach(element => {
+                    if (element.name) {
+                        originalValues[element.name] = element.value;
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Hata:', error);
+                showToast('Ürün güncellenirken bir hata oluştu', 'error');
+            });
+        });
+        
+        // Form sıfırlama
+        resetBtn.addEventListener('click', function() {
+            // Orijinal değerlere geri dön
+            Object.keys(originalValues).forEach(name => {
+                const element = form.elements[name];
+                if (element) {
+                    if (element.type === 'radio') {
+                        Array.from(form.querySelectorAll(`[name="${name}"]`)).forEach(radio => {
+                            radio.checked = (radio.value === originalValues[name]);
+                        });
+                    } else {
+                        element.value = originalValues[name];
+                    }
+                }
+            });
+            
+            // Kar marjını ve barkodu güncelle
+            updateProfitMargin();
+            generateBarcode();
+            
+            showToast('Değişiklikler geri alındı', 'info');
+        });
+        
+        // Sayfa yüklendiğinde barkod oluştur
+        generateBarcode();
+    });
+</script>
+{{ end }} 

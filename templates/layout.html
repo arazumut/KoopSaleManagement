@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .title }} - Kooperatif Satış ve Stok Takip Sistemi</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Ana CSS -->
+    <link rel="stylesheet" href="/static/css/main.css">
+    <style>
+        [x-cloak] { display: none !important; }
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+    </style>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.10.3/dist/cdn.min.js"></script>
+</head>
+<body class="bg-gray-100" x-data="{ sidebarOpen: window.innerWidth >= 1024 }">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div :class="{'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen}" 
+             class="fixed inset-y-0 left-0 z-30 w-64 transition duration-300 transform bg-primary lg:translate-x-0 lg:static lg:inset-0">
+            <div class="flex items-center justify-center mt-6">
+                <div class="flex items-center">
+                    <img src="/static/img/logo.png" alt="Logo" class="h-12 w-auto">
+                    <span class="mx-2 text-xl font-semibold text-white">Kooperatif Satış</span>
+                </div>
+            </div>
+
+            <nav class="mt-10">
+                <div x-data="{ dashboardOpen: true }">
+                    <a href="/" class="flex items-center px-6 py-2 mt-4 text-gray-100 bg-primary-dark">
+                        <i class="fas fa-tachometer-alt mr-3"></i>
+                        <span class="mx-3">Kontrol Paneli</span>
+                    </a>
+                </div>
+
+                <div x-data="{ productsOpen: false }">
+                    <a href="#" @click.prevent="productsOpen = !productsOpen" class="flex items-center px-6 py-2 mt-4 text-gray-100 hover:bg-primary-dark">
+                        <i class="fas fa-shopping-cart mr-3"></i>
+                        <span class="mx-3">Ürünler</span>
+                        <i class="fas fa-chevron-down ml-auto" :class="{'transform rotate-180': productsOpen}"></i>
+                    </a>
+                    <div x-show="productsOpen" class="bg-primary-dark">
+                        <a href="/products/new" class="flex items-center px-8 py-2 text-gray-200 hover:text-white">
+                            <i class="fas fa-plus-circle mr-3"></i>
+                            <span>Yeni Ürün</span>
+                        </a>
+                        <a href="/products" class="flex items-center px-8 py-2 text-gray-200 hover:text-white">
+                            <i class="fas fa-list mr-3"></i>
+                            <span>Ürün Listesi</span>
+                        </a>
+                        <a href="/categories" class="flex items-center px-8 py-2 text-gray-200 hover:text-white">
+                            <i class="fas fa-tags mr-3"></i>
+                            <span>Kategoriler</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div x-data="{ stockOpen: false }">
+                    <a href="#" @click.prevent="stockOpen = !stockOpen" class="flex items-center px-6 py-2 mt-4 text-gray-100 hover:bg-primary-dark">
+                        <i class="fas fa-box mr-3"></i>
+                        <span class="mx-3">Stok Yönetimi</span>
+                        <i class="fas fa-chevron-down ml-auto" :class="{'transform rotate-180': stockOpen}"></i>
+                    </a>
+                    <div x-show="stockOpen" class="bg-primary-dark">
+                        <a href="/stock/entry" class="flex items-center px-8 py-2 text-gray-200 hover:text-white">
+                            <i class="fas fa-arrow-circle-up mr-3"></i>
+                            <span>Stok Girişi</span>
+                        </a>
+                        <a href="/stock/exit" class="flex items-center px-8 py-2 text-gray-200 hover:text-white">
+                            <i class="fas fa-arrow-circle-down mr-3"></i>
+                            <span>Stok Çıkışı</span>
+                        </a>
+                        <a href="/stock/history" class="flex items-center px-8 py-2 text-gray-200 hover:text-white">
+                            <i class="fas fa-history mr-3"></i>
+                            <span>Stok Hareketleri</span>
+                        </a>
+                        <a href="/stock/critical" class="flex items-center px-8 py-2 text-gray-200 hover:text-white">
+                            <i class="fas fa-exclamation-triangle mr-3"></i>
+                            <span>Kritik Stoklar</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div x-data="{ salesOpen: false }">
+                    <a href="#" @click.prevent="salesOpen = !salesOpen" class="flex items-center px-6 py-2 mt-4 text-gray-100 hover:bg-primary-dark">
+                        <i class="fas fa-cash-register mr-3"></i>
+                        <span class="mx-3">Satış İşlemleri</span>
+                        <i class="fas fa-chevron-down ml-auto" :class="{'transform rotate-180': salesOpen}"></i>
+                    </a>
+                    <div x-show="salesOpen" class="bg-primary-dark">
+                        <a href="/sales/new" class="flex items-center px-8 py-2 text-gray-200 hover:text-white">
+                            <i class="fas fa-cart-plus mr-3"></i>
+                            <span>Yeni Satış</span>
+                        </a>
+                        <a href="/sales" class="flex items-center px-8 py-2 text-gray-200 hover:text-white">
+                            <i class="fas fa-list-alt mr-3"></i>
+                            <span>Satış Listesi</span>
+                        </a>
+                        <a href="/sales/returns" class="flex items-center px-8 py-2 text-gray-200 hover:text-white">
+                            <i class="fas fa-undo mr-3"></i>
+                            <span>İade İşlemleri</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div x-data="{ customersOpen: false }">
+                    <a href="#" @click.prevent="customersOpen = !customersOpen" class="flex items-center px-6 py-2 mt-4 text-gray-100 hover:bg-primary-dark">
+                        <i class="fas fa-user-friends mr-3"></i>
+                        <span class="mx-3">Müşteriler</span>
+                        <i class="fas fa-chevron-down ml-auto" :class="{'transform rotate-180': customersOpen}"></i>
+                    </a>
+                    <div x-show="customersOpen" class="bg-primary-dark">
+                        <a href="/customers/new" class="flex items-center px-8 py-2 text-gray-200 hover:text-white">
+                            <i class="fas fa-user-plus mr-3"></i>
+                            <span>Yeni Müşteri</span>
+                        </a>
+                        <a href="/customers" class="flex items-center px-8 py-2 text-gray-200 hover:text-white">
+                            <i class="fas fa-address-book mr-3"></i>
+                            <span>Müşteri Listesi</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div x-data="{ suppliersOpen: false }">
+                    <a href="#" @click.prevent="suppliersOpen = !suppliersOpen" class="flex items-center px-6 py-2 mt-4 text-gray-100 hover:bg-primary-dark">
+                        <i class="fas fa-truck mr-3"></i>
+                        <span class="mx-3">Tedarikçiler</span>
+                        <i class="fas fa-chevron-down ml-auto" :class="{'transform rotate-180': suppliersOpen}"></i>
+                    </a>
+                    <div x-show="suppliersOpen" class="bg-primary-dark">
+                        <a href="/suppliers/new" class="flex items-center px-8 py-2 text-gray-200 hover:text-white">
+                            <i class="fas fa-plus-circle mr-3"></i>
+                            <span>Yeni Tedarikçi</span>
+                        </a>
+                        <a href="/suppliers" class="flex items-center px-8 py-2 text-gray-200 hover:text-white">
+                            <i class="fas fa-list mr-3"></i>
+                            <span>Tedarikçi Listesi</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div x-data="{ reportsOpen: false }">
+                    <a href="#" @click.prevent="reportsOpen = !reportsOpen" class="flex items-center px-6 py-2 mt-4 text-gray-100 hover:bg-primary-dark">
+                        <i class="fas fa-chart-line mr-3"></i>
+                        <span class="mx-3">Raporlar</span>
+                        <i class="fas fa-chevron-down ml-auto" :class="{'transform rotate-180': reportsOpen}"></i>
+                    </a>
+                    <div x-show="reportsOpen" class="bg-primary-dark">
+                        <a href="/reports/sales" class="flex items-center px-8 py-2 text-gray-200 hover:text-white">
+                            <i class="fas fa-chart-bar mr-3"></i>
+                            <span>Satış Raporları</span>
+                        </a>
+                        <a href="/reports/stock" class="flex items-center px-8 py-2 text-gray-200 hover:text-white">
+                            <i class="fas fa-boxes mr-3"></i>
+                            <span>Stok Raporları</span>
+                        </a>
+                        <a href="/reports/financial" class="flex items-center px-8 py-2 text-gray-200 hover:text-white">
+                            <i class="fas fa-file-invoice-dollar mr-3"></i>
+                            <span>Mali Raporlar</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div x-data="{ usersOpen: false }">
+                    <a href="#" @click.prevent="usersOpen = !usersOpen" class="flex items-center px-6 py-2 mt-4 text-gray-100 hover:bg-primary-dark">
+                        <i class="fas fa-users mr-3"></i>
+                        <span class="mx-3">Kullanıcılar</span>
+                        <i class="fas fa-chevron-down ml-auto" :class="{'transform rotate-180': usersOpen}"></i>
+                    </a>
+                    <div x-show="usersOpen" class="bg-primary-dark">
+                        <a href="/users/new" class="flex items-center px-8 py-2 text-gray-200 hover:text-white">
+                            <i class="fas fa-user-plus mr-3"></i>
+                            <span>Yeni Kullanıcı</span>
+                        </a>
+                        <a href="/users" class="flex items-center px-8 py-2 text-gray-200 hover:text-white">
+                            <i class="fas fa-user-edit mr-3"></i>
+                            <span>Kullanıcı Yönetimi</span>
+                        </a>
+                    </div>
+                </div>
+
+                <a href="/settings" class="flex items-center px-6 py-2 mt-4 text-gray-100 hover:bg-primary-dark">
+                    <i class="fas fa-cog mr-3"></i>
+                    <span class="mx-3">Ayarlar</span>
+                </a>
+
+                <a href="/logout" class="flex items-center px-6 py-2 mt-4 text-gray-100 hover:bg-primary-dark">
+                    <i class="fas fa-sign-out-alt mr-3"></i>
+                    <span class="mx-3">Çıkış</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="flex flex-col flex-1 overflow-hidden">
+            <!-- Header -->
+            <header class="flex items-center justify-between px-6 py-4 bg-white border-b border-primary">
+                <div class="flex items-center">
+                    <button @click="sidebarOpen = !sidebarOpen" class="text-gray-500 focus:outline-none lg:hidden">
+                        <i class="fas fa-bars text-lg"></i>
+                    </button>
+                    <div class="relative mx-4 lg:mx-0">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                            <i class="fas fa-search text-gray-500"></i>
+                        </span>
+                        <input class="w-32 pl-10 pr-4 rounded-md form-input sm:w-64 focus:outline-none focus:ring-2 focus:ring-primary" type="text" placeholder="Ara...">
+                    </div>
+                </div>
+
+                <div class="flex items-center">
+                    <div x-data="{ notificationOpen: false }" class="relative">
+                        <button @click="notificationOpen = !notificationOpen" class="flex mx-4 text-gray-600 focus:outline-none relative">
+                            <i class="fas fa-bell text-lg"></i>
+                            <span class="stock-alert-icon absolute top-0 right-0 -mt-1 -mr-1 bg-white rounded-full w-2 h-2"></span>
+                        </button>
+                        <div x-show="notificationOpen" @click.away="notificationOpen = false" class="absolute right-0 w-80 mt-2 bg-white rounded-md shadow-lg overflow-hidden z-20">
+                            <div class="py-2 max-h-72 overflow-y-auto">
+                                <!-- Bildirimler buraya yüklenecek -->
+                                <div class="flex items-center px-4 py-3 border-b hover:bg-gray-100">
+                                    <i class="fas fa-exclamation-circle text-danger text-lg mr-3"></i>
+                                    <div class="text-sm">
+                                        <p class="font-medium">Kritik Stok Uyarısı</p>
+                                        <p class="text-gray-500">Elma ürünü kritik stok seviyesinin altına düştü.</p>
+                                        <p class="text-xs text-gray-400">5 dakika önce</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="/notifications" class="block bg-primary text-white text-center font-bold py-2">Tüm Bildirimleri Gör</a>
+                        </div>
+                    </div>
+
+                    <div x-data="{ dropdownOpen: false }" class="relative">
+                        <button @click="dropdownOpen = !dropdownOpen" class="relative block overflow-hidden rounded-full shadow focus:outline-none">
+                            <span class="flex items-center justify-center w-10 h-10 rounded-full bg-primary text-white">
+                                <i class="fas fa-user"></i>
+                            </span>
+                        </button>
+                        <div x-show="dropdownOpen" @click.away="dropdownOpen = false" class="absolute right-0 w-48 mt-2 bg-white rounded-md shadow-xl z-20">
+                            <a href="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-primary hover:text-white">Profil</a>
+                            <a href="/settings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-primary hover:text-white">Ayarlar</a>
+                            <a href="/logout" class="block px-4 py-2 text-sm text-gray-700 hover:bg-primary hover:text-white">Çıkış</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main content -->
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
+                <div class="container mx-auto px-6 py-8">
+                    <!-- Toast mesajları için container -->
+                    <div class="toast-container"></div>
+                    
+                    <!-- İçerik buraya gelecek -->
+                    {{ template "content" . }}
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- JS Dosyaları -->
+    <script src="/static/js/main.js"></script>
+    
+    <!-- Sayfa özel JS kodları -->
+    {{ template "scripts" . }}
+</body>
+</html> 

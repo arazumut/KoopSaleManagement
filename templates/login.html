@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giriş - Kooperatif Ürün Satış ve Stok Takip Sistemi</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/main.css">
+    <style>
+        body {
+            background-color: var(--color-gray-light);
+            background-image: url('/static/img/background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            padding: 2rem;
+        }
+        
+        .login-logo {
+            width: 100px;
+            height: auto;
+            margin: 0 auto 1.5rem auto;
+            display: block;
+        }
+        
+        .title-divider {
+            position: relative;
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+        
+        .title-divider:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 100%;
+            height: 1px;
+            background: var(--color-gray);
+            z-index: 0;
+        }
+        
+        .title-divider span {
+            display: inline-block;
+            padding: 0 15px;
+            background: white;
+            position: relative;
+            z-index: 1;
+            color: var(--color-gray-dark);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <img src="/static/img/logo.png" alt="Logo" class="login-logo">
+        <h1 class="text-2xl font-bold text-center text-primary mb-4">Kooperatif Ürün Satış ve Stok Takip Sistemi</h1>
+        
+        {{if .error}}
+        <div class="alert alert-danger my-4">
+            {{.error}}
+        </div>
+        {{end}}
+        
+        <form action="/login" method="post" id="loginForm">
+            <div class="form-group">
+                <label for="username" class="block text-sm font-medium mb-1">Kullanıcı Adı</label>
+                <input type="text" id="username" name="username" class="form-control" required autofocus>
+            </div>
+            
+            <div class="form-group">
+                <label for="password" class="block text-sm font-medium mb-1">Şifre</label>
+                <input type="password" id="password" name="password" class="form-control" required>
+            </div>
+            
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                    <input type="checkbox" id="remember" name="remember" class="mr-2">
+                    <label for="remember" class="text-sm">Beni hatırla</label>
+                </div>
+                <a href="#" class="text-sm text-primary hover:underline">Şifremi unuttum</a>
+            </div>
+            
+            <button type="submit" class="btn btn-primary w-full py-2">Giriş Yap</button>
+        </form>
+        
+        <div class="title-divider mt-6">
+            <span>veya</span>
+        </div>
+        
+        <div class="text-center mt-6">
+            <a href="#" class="btn btn-outline w-full">Yeni Hesap Oluştur</a>
+        </div>
+        
+        <p class="text-center text-sm mt-6 text-gray-500">
+            © 2023 Kooperatif Ürün Satış ve Stok Takip Sistemi.
+        </p>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            
+            if (!username || !password) {
+                event.preventDefault();
+                alert('Lütfen kullanıcı adı ve şifre alanlarını doldurunuz!');
+            }
+        });
+    </script>
+</body>
+</html> 

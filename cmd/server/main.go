@@ -1,6 +1,7 @@
 package main
 
 import (
+	"html/template"
 	"log"
 	"os"
 
@@ -95,13 +96,93 @@ func main() {
 	// Statik dosyaları sunmak için
 	router.Static("/static", "./static")
 
-	// Şablon klasörünün yolunu düzelttik
-	router.LoadHTMLGlob("/Users/umutaraz/Desktop/KoopSaleManagement/templates/*")
+	// Template fonksiyonları ekle
+	router.SetFuncMap(template.FuncMap{
+		"formatDate":     handlers.FormatDate,
+		"formatCurrency": handlers.FormatCurrency,
+		"safeHTML":       handlers.SafeHTML,
+		"add":            handlers.Add,
+		"subtract":       handlers.Subtract,
+		"multiply":       handlers.Multiply,
+		"divide":         handlers.Divide,
+		"hasRole":        handlers.HasRole,
+		"error":          func(err interface{}) interface{} { return err },
+	})
+
+	// Şablon klasörünün yolunu belirt
+	router.LoadHTMLGlob("templates/*")
 
 	// Ana sayfa
 	router.GET("/", func(c *gin.Context) {
-		c.HTML(200, "index.html", gin.H{
-			"title": "Kooperatif Ürün Satış ve Stok Takip Sistemi",
+		c.HTML(200, "layout.html", gin.H{
+			"title": "Kontrol Paneli",
+			"user": gin.H{
+				"name": "Admin Kullanıcı",
+				"role": "admin",
+			},
+		})
+	})
+
+	// Giriş sayfası route'u
+	router.GET("/login", func(c *gin.Context) {
+		c.HTML(200, "login.html", gin.H{
+			"title": "Giriş",
+		})
+	})
+
+	// Ürünler sayfası
+	router.GET("/products", middleware.AuthMiddleware(), func(c *gin.Context) {
+		c.HTML(200, "layout.html", gin.H{
+			"title": "Ürünler",
+			"user":  c.MustGet("user"),
+		})
+	})
+
+	// Yeni ürün sayfası
+	router.GET("/products/new", middleware.AuthMiddleware(), func(c *gin.Context) {
+		c.HTML(200, "layout.html", gin.H{
+			"title": "Yeni Ürün",
+			"user":  c.MustGet("user"),
+		})
+	})
+
+	// Ürün düzenleme sayfası
+	router.GET("/products/:id/edit", middleware.AuthMiddleware(), func(c *gin.Context) {
+		productID := c.Param("id")
+		// Gerçek uygulamada ürün verisini veritabanından çekeceksiniz
+		// Şimdilik örnek veri kullanıyoruz
+		c.HTML(200, "layout.html", gin.H{
+			"title": "Ürün Düzenle",
+			"user":  c.MustGet("user"),
+			"Product": gin.H{
+				"ID":            productID,
+				"Code":          "PRD-001",
+				"Name":          "Elma",
+				"Category":      "meyve",
+				"Unit":          "kg",
+				"Stock":         25.0,
+				"CriticalStock": 10.0,
+				"PurchasePrice": 12.50,
+				"SalePrice":     18.00,
+				"Description":   "Taze elma",
+				"Status":        "active",
+			},
+		})
+	})
+
+	// Satışlar sayfası
+	router.GET("/sales", middleware.AuthMiddleware(), func(c *gin.Context) {
+		c.HTML(200, "layout.html", gin.H{
+			"title": "Satışlar",
+			"user":  c.MustGet("user"),
+		})
+	})
+
+	// Yeni satış sayfası
+	router.GET("/sales/new", middleware.AuthMiddleware(), func(c *gin.Context) {
+		c.HTML(200, "layout.html", gin.H{
+			"title": "Yeni Satış",
+			"user":  c.MustGet("user"),
 		})
 	})
 
