@@ -1,102 +1,102 @@
-# Kooperatif Ürün Satış ve Stok Takip Sistemi
+# Cooperative Product Sales and Inventory Management System
 
-Kooperatifler için geliştirilmiş, ürün satış ve stok takibi yapabilen web tabanlı bir yönetim sistemidir.
+A web-based management system developed for cooperatives, capable of product sales and inventory tracking.
 
-## Özellikler
+## Features
 
-- **Kullanıcı Yönetimi**: Rol tabanlı yetkilendirme sistemi (Admin, Üye, Satış, Depocu)
-- **Ürün Yönetimi**: Ürün listeleme, ekleme, güncelleme, silme
-- **Stok Takibi**: Giriş-çıkış işlemleri, lokasyon bazlı stok yönetimi
-- **Satış Yönetimi**: Satış formu, faturalandırma, iade işlemleri
-- **Müşteri Yönetimi**: Müşteri kaydı, borç ve ödeme takibi
-- **Tedarikçi Yönetimi**: Tedarikçi kaydı, alım kayıtları
-- **Raporlama**: Satış, stok ve finansal raporlar
-- **Kullanıcı Dostu Arayüz**: Responsive tasarım, modern UI
+- **User Management**: Role-based authorization system (Admin, Member, Sales, Warehouse)
+- **Product Management**: Product listing, adding, updating, deleting
+- **Inventory Tracking**: Input-output operations, location-based inventory management
+- **Sales Management**: Sales forms, invoicing, return operations
+- **Customer Management**: Customer registration, debt and payment tracking
+- **Supplier Management**: Supplier registration, purchase records
+- **Reporting**: Sales, inventory, and financial reports
+- **User-Friendly Interface**: Responsive design, modern UI
 
-## Teknoloji
+## Technology
 
-- **Backend**: Go (Golang) ve Gin Framework
+- **Backend**: Go (Golang) and Gin Framework
 - **Frontend**: HTML5, TailwindCSS, Alpine.js
-- **Veritabanı**: SQLite (PostgreSQL'e geçiş yapılabilir)
-- **Kimlik Doğrulama**: JWT token tabanlı
+- **Database**: SQLite (can be migrated to PostgreSQL)
+- **Authentication**: JWT token based
 
-## Kurulum
+## Installation
 
-### Gereksinimler
+### Requirements
 
-- Go 1.16 veya daha yüksek sürüm
+- Go 1.16 or higher
 - SQLite
 
-### Adımlar
+### Steps
 
-1. Depoyu klonlayın:
+1. Clone the repository:
 ```bash
 git clone https://github.com/kullanici/koopsatis.git
 cd koopsatis
 ```
 
-2. Gerekli bağımlılıkları yükleyin:
+2. Install required dependencies:
 ```bash
 go mod download
 ```
 
-3. Uygulamayı derleyin:
+3. Build the application:
 ```bash
 go build -o koopsatis ./cmd/server
 ```
 
-4. Uygulamayı çalıştırın:
+4. Run the application:
 ```bash
 ./koopsatis
 ```
 
-5. Tarayıcınızda aşağıdaki adrese gidin:
+5. Navigate to the following address in your browser:
 ```
 http://localhost:8080
 ```
 
-## Geliştirme Ortamı
+## Development Environment
 
-Geliştirme için aşağıdaki komutu kullanabilirsiniz:
+For development, you can use the following command:
 
 ```bash
 go run ./cmd/server/main.go
 ```
 
-## Varsayılan Kullanıcı
+## Default User
 
-Uygulama ilk çalıştırıldığında otomatik olarak bir admin kullanıcısı oluşturulur:
+When the application is first run, an admin user is automatically created:
 
-- **Kullanıcı Adı**: admin
-- **Şifre**: admin123
+- **Username**: admin
+- **Password**: admin123
 
-İlk girişten sonra güvenlik için bu şifreyi değiştirmeniz önerilir.
+It is recommended to change this password after the first login for security purposes.
 
-## API Dökümantasyonu
+## API Documentation
 
-RESTful API'lar aşağıdaki base URL üzerinden erişilebilir:
+RESTful APIs can be accessed through the following base URL:
 
 ```
 http://localhost:8080/api
 ```
 
-### Kimlik Doğrulama Endpoint'leri
+### Authentication Endpoints
 
-- `POST /api/auth/login`: Kullanıcı girişi
-- `POST /api/auth/register`: Yeni kullanıcı kaydı
+- `POST /api/auth/login`: User login
+- `POST /api/auth/register`: New user registration
 
-### Kullanıcı Endpoint'leri
+### User Endpoints
 
-- `GET /api/users`: Tüm kullanıcıları listele (sadece admin)
-- `GET /api/users/:id`: Belirli bir kullanıcıyı getir
-- `PUT /api/users/:id`: Kullanıcı bilgilerini güncelle
-- `DELETE /api/users/:id`: Kullanıcıyı sil (sadece admin)
+- `GET /api/users`: List all users (admin only)
+- `GET /api/users/:id`: Get a specific user
+- `PUT /api/users/:id`: Update user information
+- `DELETE /api/users/:id`: Delete a user (admin only)
 
-### Ürün Endpoint'leri
+### Product Endpoints
 
-- `POST /api/products`: Yeni ürün ekle
-- `GET /api/products`: Tüm ürünleri listele
-- `GET /api/products/:id`: Belirli bir ürünü getir
-- `PUT /api/products/:id`: Ürün bilgilerini güncelle
-- `DELETE /api/products/:id`: Ürünü sil
+- `POST /api/products`: Add new product
+- `GET /api/products`: List all products
+- `GET /api/products/:id`: Get a specific product
+- `PUT /api/products/:id`: Update product information
+- `DELETE /api/products/:id`: Delete a product
 
